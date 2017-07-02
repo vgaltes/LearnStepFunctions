@@ -21,3 +21,11 @@ If you've followed the steps to install the serverless framework, you should be 
 ## Python
 
 Download and install the latest version of Python from the [official website](https://www.python.org/downloads/)
+
+## VSCode
+
+I'm going to use VSCode in this workshop (you can use whatever editor you'd like). If you don't have VSCode installed, go to the [official website](https://code.visualstudio.com/) and follow the instructions for you favourite OS.
+
+There are a couple of extensions that will make our live easier. For F# development, download the [ionide](http://ionide.io/) extension. For C# development, download the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp).
+
+
