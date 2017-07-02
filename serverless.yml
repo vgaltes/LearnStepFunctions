@@ -15,6 +15,23 @@ stepFunctions:
         States:
           Attack:
             Type: Pass
+            Next: CalculateMultipliers
+          CalculateMultipliers:
+            Type: Parallel
+            Branches:
+            - StartAt: AttackMultiplier
+              States:
+                AttackMultiplier:
+                  Type: Pass
+                  End: true
+            - StartAt: DefenseMultiplier
+              States:
+                DefenseMultiplier:
+                  Type: Pass
+                  End: true
+            Next: Result
+          Result:
+            Type: Pass
             End: true
 
 plugins:
