@@ -1,4 +1,4 @@
-# LearnStepFunctions
+# Learn Step Functions
 
 This is a workshop to learn how to develop and deploy [AWS Step Functions] (https://aws.amazon.com/documentation/step-functions/). You can find some tutorials I've written [here](http://vgaltes.com/tags/#serverless).
 
