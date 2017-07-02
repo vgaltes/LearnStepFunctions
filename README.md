@@ -10,6 +10,8 @@ We're going to use the [serverless framework](http://serverless.com) to deploy a
 
 Once we have NodeJS install, we can install the serverless framework. To do that, open a terminal window and type `npm install serverless -g`. That will install the framework. To check that the installation finished successfully, type `sls -v` to see the installed version of the framework. At the time of writting, you should see `1.16.1`
 
+You'll need to install the [plugin](https://github.com/horike37/serverless-step-functions) for step functions. To do that, create your working folder and, inside it type `npm install --save serverless-step-functions`
+
 ## .Net Core
 
 You can download the last version of the SDK, but we'll need to target netcoreapp1.0. So, go to the [official website](https://www.microsoft.com/net/core) and follow the instructions for your favourite OS.
