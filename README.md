@@ -74,3 +74,6 @@ nsStateMachine-U1C4PYE3BAP3',
   input: '"hello"',
   output: '"hello"' }
 ```
+Login into the AWS console with the service credentials, to to the Step Function service and click on the Step Function and the execution. You should see something like this:
+
+![step 1](/images/1.png)
