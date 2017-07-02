@@ -1,0 +1,21 @@
+service: LearnStepFunctions
+
+provider:
+  name: aws
+  runtime: dotnetcore1.0
+  profile: serverless-admin-vgaltes
+  region: us-east-1
+  stage: dev
+
+stepFunctions:
+  stateMachines:
+    rpg:
+      definition:
+        StartAt: Attack
+        States:
+          Attack:
+            Type: Pass
+            End: true
+
+plugins:
+  - serverless-step-functions
