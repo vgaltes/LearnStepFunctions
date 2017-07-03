@@ -232,3 +232,5 @@ But if we test the function using a negative number `sls invoke stepf --name rpg
 If you connect to the console you should see something like:
 
 ![step 3](/images/3.png)
+
+Check the Step 3 branch for the final solution.
