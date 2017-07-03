@@ -20,19 +20,38 @@ stepFunctions:
             Type: Parallel
             Branches:
             - StartAt: AttackMultiplier
+              #C#
               States:
                 AttackMultiplier:
                   Type: Pass
                   End: true
             - StartAt: DefenseMultiplier
+              #Python
               States:
                 DefenseMultiplier:
                   Type: Pass
                   End: true
-            Next: Result
-          Result:
+            Next: CalculateAttackResult
+          CalculateAttackResult:
+            #Javascript
+            #Errors
             Type: Pass
-            End: true
+            InputPath: $[0]
+            Next: IsEnemyAlive
+          IsEnemyAlive:
+            Type: Choice
+            Choices:
+              - Variable: $.value
+                NumericGreaterThan: 0
+                Next: Alive
+              - Variable: $.value
+                NumericLessThanEquals: 0
+                Next: Dead
+          Alive:
+            Type: Fail
+            Cause: "You haven't killed the enemy"
+          Dead:
+            Type: Succeed
 
 plugins:
   - serverless-step-functions
