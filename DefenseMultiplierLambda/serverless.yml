@@ -1,0 +1,12 @@
+service: DefenseMultiplierLambda
+
+provider:
+  name: aws
+  runtime: python3.6
+  profile: serverless-admin-vgaltes
+  region: us-east-1
+  stage: dev
+
+functions:
+  DefenseMultiplier:
+    handler: handler.defenseMultiplier
