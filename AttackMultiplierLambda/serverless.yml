@@ -1,0 +1,15 @@
+service: AttackMultiplierLambda
+
+provider:
+  name: aws
+  runtime: dotnetcore1.0
+  profile: serverless-admin-vgaltes
+  region: us-east-1
+  stage: dev
+
+package:
+  artifact: bin/release/netcoreapp1.0/deploy-package.zip
+
+functions:
+  AttackMultiplier:
+    handler: AttackMultiplierLambda::RPG.AttackMultiplierLambda::AttackMultiplier
