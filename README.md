@@ -1,33 +1,103 @@
-# Learn Step Functions
+## Our first lambda
 
-This is a workshop to learn how to develop and deploy [AWS Step Functions] (https://aws.amazon.com/documentation/step-functions/). You can find some tutorials I've written [here](http://vgaltes.com/tags/#serverless).
+Now that we have the skeleton of the Step Function, let's develop our first lambda. Let's start with some .Net Core and C#. In your root folder type `serverless create --template aws-chsarp --path AttackMultiplierLambda`. Open the csproj file and delete these two lines
+```
+<AssemblyName>CsharpHandlers</AssemblyName>
+<PackageId>aws-csharp</PackageId>
+```
+And change the name of the csproj file to `AttackMultiplierLambda.csproj`. Rename the `Handler.cs` file to `AttackMultiplierLambda.cs`.
 
-## Pre-requisites
+Replace the content of the file with the following code:
 
-## Serverless framework
+```
+using Amazon.Lambda.Core;
+using System;
 
-We're going to use the [serverless framework](http://serverless.com) to deploy and test the step functions. The serverless framework is a NodeJS library, so first we'll need to install NodeJs. Go to the [NodeJS] website and install it in your favourite OS.
+[assembly:LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
-Once we have NodeJS install, we can install the serverless framework. To do that, open a terminal window and type `npm install serverless -g`. That will install the framework. To check that the installation finished successfully, type `sls -v` to see the installed version of the framework. At the time of writting, you should see `1.16.1`
+namespace RPG
+{
+    public class AttackMultiplierLambda
+    {
+       public Turn AttackMultiplier(Turn turn)
+       {
+           var randomNumberGenerator = new System.Random();
+           var multiplier = randomNumberGenerator.Next(0,2);
 
-## .Net Core
+           turn.Attack.Strength = multiplier * turn.Attack.Strength;
 
-You can download the last version of the SDK, but we'll need to target netcoreapp1.0. So, go to the [official website](https://www.microsoft.com/net/core) and follow the instructions for your favourite OS.
+           return turn;
+       }
+    }
 
-## Javascript
+    public class Player{
+      public int Level {get;set;}
+      public int Live{get;set;}
+    }
 
-If you've followed the steps to install the serverless framework, you should be in a good position to develop using Javascript.
+    public class Action{
+      public Player Player{get;set;}
+      public int Strength{get;set;}
+    }
 
-## Python
+    public class Turn
+    {
+      public Action Attack{get;set;}
 
-Download and install the latest version of Python from the [official website](https://www.python.org/downloads/)
+      public Action Defense{get;set;}
+    }
+}
+```
+As you can see, we are defining the class that we're going to accept and return from the Lambda. Inside the lambda, we're just creating a random number between 0 and 2, and multiplying the attack strength by this number.
 
-## VSCode
+To restore packages, build the project and create a package, just run `build.sh` or `build.cmd`.
 
-I'm going to use VSCode in this workshop (you can use whatever editor you'd like). If you don't have VSCode installed, go to the [official website](https://code.visualstudio.com/) and follow the instructions for you favourite OS.
+It's time to define the `serverless.yml` file of the lambda so that we can deploy and test it. Replace the contents of the file with the following contents:
 
-There are a couple of extensions that will make our live easier. For F# development, download the [ionide](http://ionide.io/) extension. For C# development, download the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp).
+```
+service: AttackMultiplierLambda
 
-## AWS
+provider:
+  name: aws
+  runtime: dotnetcore1.0
+  profile: <your profile name>
+  region: us-east-1
+  stage: dev
 
-You'll need an AWS account to follow the workshop. You can get one for free [here](https://aws.amazon.com/free/). Once you have the account, you'll need to setup an account so that the serverless framework can interact with AWS. Please, follow the steps explained [here](https://serverless.com/framework/docs/providers/aws/guide/credentials/). My preferred option is to set up an AWS profile. 
+package:
+  artifact: bin/release/netcoreapp1.0/deploy-package.zip
+
+functions:
+  AttackMultiplier:
+    handler: AttackMultiplierLambda::RPG.AttackMultiplierLambda::AttackMultiplier
+```
+
+It's quite a simple file. We're defining our provider as usual, telling serverless where is the package we want to deploy and we're defining the function giving it a name (AttackMultiplier) and telling AWS where it can be found (dll::namespace.class::method)
+
+It's time to deploy: `sls deploy`.
+
+To test the Lambda we should pass a json that can be deserialized to the classes we've defined in the Lambda. 
+
+`sls invoke -f AttackMultiplier --data '{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}'`
+
+You should get something like this as a response:
+```
+{
+    "Attack": {
+        "Player": {
+            "Level": 10,
+            "Live": 50
+        },
+        "Strength": 0
+    },
+    "Defense": {
+        "Player": {
+            "Level": 8,
+            "Live": 20
+        },
+        "Strength": 30
+    }
+}
+```
+
+In this case the multiplier was 0 :-)
