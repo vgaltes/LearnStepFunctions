@@ -1,33 +1,66 @@
-# Learn Step Functions
+## Calculate result in JS
 
-This is a workshop to learn how to develop and deploy [AWS Step Functions] (https://aws.amazon.com/documentation/step-functions/). You can find some tutorials I've written [here](http://vgaltes.com/tags/#serverless).
+Let's code another Lambda, in this case in JS. In the root folder type `serverless create --template aws-nodejs --path CalculateAttackResultLambda`. Go to the handler.js file and replace its content with the following code: 
 
-## Pre-requisites
+```
+'use strict';
 
-## Serverless framework
+module.exports.calculateAttackResult = (event, context, callback) => {
+  let attackResult = event[0];
+  let defenseResult = event[1];
 
-We're going to use the [serverless framework](http://serverless.com) to deploy and test the step functions. The serverless framework is a NodeJS library, so first we'll need to install NodeJs. Go to the [NodeJS] website and install it in your favourite OS.
+  defenseResult.Defense.Player.Live = defenseResult.Defense.Player.Live - attackResult.Attack.Strength;
 
-Once we have NodeJS install, we can install the serverless framework. To do that, open a terminal window and type `npm install serverless -g`. That will install the framework. To check that the installation finished successfully, type `sls -v` to see the installed version of the framework. At the time of writting, you should see `1.16.1`
+  let result = {"Attack": attackResult.Attack, "Defense" : defenseResult.Defense};
 
-## .Net Core
+  callback(null, result);
+};
+```
 
-You can download the last version of the SDK, but we'll need to target netcoreapp1.0. So, go to the [official website](https://www.microsoft.com/net/core) and follow the instructions for your favourite OS.
+As you can see, we're calculating the remaining life of the deffender. This is the state that collects the result of the parallel state, so we're receiving the result of each of the parallel tasks in an array. 
 
-## Javascript
+Now edit the serverless.yml file and replace its content with the following code:
 
-If you've followed the steps to install the serverless framework, you should be in a good position to develop using Javascript.
+```
+service: CalculateAttackResultLambda
 
-## Python
+provider:
+  name: aws
+  runtime: nodejs6.10
+  profile: <your profile name>
+  region: us-east-1
+  stage: dev
 
-Download and install the latest version of Python from the [official website](https://www.python.org/downloads/)
+functions:
+  calculateAttackResult:
+    handler: handler.calculateAttackResult
 
-## VSCode
+```
 
-I'm going to use VSCode in this workshop (you can use whatever editor you'd like). If you don't have VSCode installed, go to the [official website](https://code.visualstudio.com/) and follow the instructions for you favourite OS.
+Time to deploy: `sls deploy`
 
-There are a couple of extensions that will make our live easier. For F# development, download the [ionide](http://ionide.io/) extension. For C# development, download the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp).
+And test:
+```
+sls invoke -f calculateAttackResult --data '[{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}, {"Attack":{"Player":{"Level":10,"Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}]'
+```
 
-## AWS
+You should see the following result:
 
-You'll need an AWS account to follow the workshop. You can get one for free [here](https://aws.amazon.com/free/). Once you have the account, you'll need to setup an account so that the serverless framework can interact with AWS. Please, follow the steps explained [here](https://serverless.com/framework/docs/providers/aws/guide/credentials/). My preferred option is to set up an AWS profile. 
+```
+{
+  "Attack":{
+    "Player":{
+      "Level":10,
+      "Live":50
+    },
+    "Strength":10
+  },
+  "Defense":{
+    "Player":{
+      "Level":8,
+      "Live":10
+    },
+    "Strength":30
+  }
+}
+```
