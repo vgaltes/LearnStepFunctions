@@ -1,4 +1,3 @@
-import json
 import random
 
 def defenseMultiplier(event, context):
@@ -6,4 +5,4 @@ def defenseMultiplier(event, context):
     multiplier = random.randint(0,2)
     event['Defense']['Strength'] = multiplier * defenseStrength
 
-    return json.dumps(event)
+    return event
