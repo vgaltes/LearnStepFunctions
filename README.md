@@ -1,33 +1,58 @@
-# Learn Step Functions
+## Defense multiplier in Python
+Let's code another Lambda, in this case in Python. In the root folder type `serverless create --template aws-python3 --path DefenseMultiplierLambda`. Go to the handler.py file and replace its content with the following code: 
 
-This is a workshop to learn how to develop and deploy [AWS Step Functions] (https://aws.amazon.com/documentation/step-functions/). You can find some tutorials I've written [here](http://vgaltes.com/tags/#serverless).
+```
+import random
 
-## Pre-requisites
+def defenseMultiplier(event, context):
+    defenseStrength = event['Defense']['Strength']
+    multiplier = random.randint(0,2)
+    event['Defense']['Strength'] = multiplier * defenseStrength
 
-## Serverless framework
+    return event
+```
 
-We're going to use the [serverless framework](http://serverless.com) to deploy and test the step functions. The serverless framework is a NodeJS library, so first we'll need to install NodeJs. Go to the [NodeJS] website and install it in your favourite OS.
+Now edit the serverless.yml file and replace its content with the following code:
 
-Once we have NodeJS install, we can install the serverless framework. To do that, open a terminal window and type `npm install serverless -g`. That will install the framework. To check that the installation finished successfully, type `sls -v` to see the installed version of the framework. At the time of writting, you should see `1.16.1`
+```
+service: DefenseMultiplierLambda
 
-## .Net Core
+provider:
+  name: aws
+  runtime: python3.6
+  profile: <your profile name>
+  region: us-east-1
+  stage: dev
 
-You can download the last version of the SDK, but we'll need to target netcoreapp1.0. So, go to the [official website](https://www.microsoft.com/net/core) and follow the instructions for your favourite OS.
+functions:
+  DefenseMultiplier:
+    handler: handler.defenseMultiplier
+```
+Same idea than the previous Lambda. We specify that we have a function called DefenseMultiplier and that the entry point of the lambda is on the method defenseMultiplier of the file handler.
 
-## Javascript
+Time to deploy: `sls deploy`
 
-If you've followed the steps to install the serverless framework, you should be in a good position to develop using Javascript.
+And test: `sls invoke -f DefenseMultiplier --data '{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}'`
 
-## Python
+You should see something like this as the response:
 
-Download and install the latest version of Python from the [official website](https://www.python.org/downloads/)
+```
+{
+  "Attack":{
+    "Player":{
+      "Level":10,
+      "Live":50
+    },
+    "Strength":10
+  },
+  "Defense":{
+    "Player":{
+      "Level":8,
+      "Live":20
+    },
+    "Strength":60
+  }
+}
+```
 
-## VSCode
-
-I'm going to use VSCode in this workshop (you can use whatever editor you'd like). If you don't have VSCode installed, go to the [official website](https://code.visualstudio.com/) and follow the instructions for you favourite OS.
-
-There are a couple of extensions that will make our live easier. For F# development, download the [ionide](http://ionide.io/) extension. For C# development, download the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp).
-
-## AWS
-
-You'll need an AWS account to follow the workshop. You can get one for free [here](https://aws.amazon.com/free/). Once you have the account, you'll need to setup an account so that the serverless framework can interact with AWS. Please, follow the steps explained [here](https://serverless.com/framework/docs/providers/aws/guide/credentials/). My preferred option is to set up an AWS profile. 
+In this case the multiplier was 2 :-)
