@@ -8,5 +8,5 @@ module.exports.calculateAttackResult = (event, context, callback) => {
 
   let result = {"Attack": attackResult.Attack, "Defense" : defenseResult.Defense};
 
-  callback(null, JSON.stringify(result));
+  callback(null, result);
 };

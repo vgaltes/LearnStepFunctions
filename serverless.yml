@@ -1,5 +1,11 @@
 service: LearnStepFunctions
 
+custom:
+  accountId: 165940758985
+  attackMultiplierService: AttackMultiplierLambda
+  defenseMultiplierService: DefenseMultiplierLambda
+  calculateResultService: CalculateAttackResultLambda
+
 provider:
   name: aws
   runtime: dotnetcore1.0
@@ -20,31 +26,29 @@ stepFunctions:
             Type: Parallel
             Branches:
             - StartAt: AttackMultiplier
-              #C#
               States:
                 AttackMultiplier:
-                  Type: Pass
+                  Type: Task
+                  Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:custom.attackMultiplierService}-${opt:stage}-AttackMultiplier
                   End: true
             - StartAt: DefenseMultiplier
-              #Python
               States:
                 DefenseMultiplier:
-                  Type: Pass
+                  Type: Task
+                  Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:custom.defenseMultiplierService}-${opt:stage}-DefenseMultiplier
                   End: true
             Next: CalculateAttackResult
           CalculateAttackResult:
-            #Javascript
-            #Errors
-            Type: Pass
-            InputPath: $[0]
+            Type: Task
+            Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:custom.calculateResultService}-${opt:stage}-calculateAttackResult
             Next: IsEnemyAlive
           IsEnemyAlive:
             Type: Choice
             Choices:
-              - Variable: $.value
+              - Variable: $.Defense.Player.Live
                 NumericGreaterThan: 0
                 Next: Alive
-              - Variable: $.value
+              - Variable: $.Defense.Player.Live
                 NumericLessThanEquals: 0
                 Next: Dead
           Alive:
