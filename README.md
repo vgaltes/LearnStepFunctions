@@ -1,33 +1,93 @@
-# Learn Step Functions
+## Joining all together
 
-This is a workshop to learn how to develop and deploy [AWS Step Functions] (https://aws.amazon.com/documentation/step-functions/). You can find some tutorials I've written [here](http://vgaltes.com/tags/#serverless).
+It's time to use those Lambdas in our step function. So, go to your root folder, edit the serverless.yml file and update it with the following code:
 
-## Pre-requisites
+```
+service: LearnStepFunctions
 
-## Serverless framework
+custom:
+  accountId: <your account id> #find it in the AWS console
+  attackMultiplierService: AttackMultiplierLambda
+  defenseMultiplierService: DefenseMultiplierLambda
+  calculateResultService: CalculateAttackResultLambda
 
-We're going to use the [serverless framework](http://serverless.com) to deploy and test the step functions. The serverless framework is a NodeJS library, so first we'll need to install NodeJs. Go to the [NodeJS] website and install it in your favourite OS.
+provider:
+  name: aws
+  runtime: dotnetcore1.0
+  profile: <your profile id>
+  region: us-east-1
+  stage: dev
 
-Once we have NodeJS install, we can install the serverless framework. To do that, open a terminal window and type `npm install serverless -g`. That will install the framework. To check that the installation finished successfully, type `sls -v` to see the installed version of the framework. At the time of writting, you should see `1.16.1`
+stepFunctions:
+  stateMachines:
+    rpg:
+      definition:
+        StartAt: Attack
+        States:
+          Attack:
+            Type: Pass
+            Next: CalculateMultipliers
+          CalculateMultipliers:
+            Type: Parallel
+            Branches:
+            - StartAt: AttackMultiplier
+              States:
+                AttackMultiplier:
+                  Type: Task
+                  Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:custom.attackMultiplierService}-${opt:stage}-AttackMultiplier
+                  End: true
+            - StartAt: DefenseMultiplier
+              States:
+                DefenseMultiplier:
+                  Type: Task
+                  Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:custom.defenseMultiplierService}-${opt:stage}-DefenseMultiplier
+                  End: true
+            Next: CalculateAttackResult
+          CalculateAttackResult:
+            Type: Task
+            Resource: arn:aws:lambda:${opt:region}:${self:custom.accountId}:function:${self:custom.calculateResultService}-${opt:stage}-calculateAttackResult
+            Next: IsEnemyAlive
+          IsEnemyAlive:
+            Type: Choice
+            Choices:
+              - Variable: $.Defense.Player.Live
+                NumericGreaterThan: 0
+                Next: Alive
+              - Variable: $.Defense.Player.Live
+                NumericLessThanEquals: 0
+                Next: Dead
+          Alive:
+            Type: Fail
+            Cause: "You haven't killed the enemy"
+          Dead:
+            Type: Succeed
 
-## .Net Core
+plugins:
+  - serverless-step-functions
+```
 
-You can download the last version of the SDK, but we'll need to target netcoreapp1.0. So, go to the [official website](https://www.microsoft.com/net/core) and follow the instructions for your favourite OS.
+Some things to take into account here:
+ - We're defining some custom variables that we'll use afterwards
+ - We're changing some steps to use a Task. When we do that, we need to specify a Resource, which is what identifies the lambda. That will be the same identifier you will find in the AWS console. We're constructing it using the custom variables and some [CLI options](https://serverless.com/framework/docs/providers/aws/guide/variables/#referencing-cli-options)
+ - We're changing the variables in the choice step to use the new output.
+ 
+As always, it's time to deploy: 'sls deploy'
 
-## Javascript
+And to test:
+```
+sls invoke stepf --name rpg --data '{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}'
+```
 
-If you've followed the steps to install the serverless framework, you should be in a good position to develop using Javascript.
+You should see something like this as output:
+```
+{ executionArn: 'arn:aws:states:us-east-1:165940758985:execution:RpgStepFunctionsStateMachine-KWBQD89RFQOY:7e92d52e-bfb6-4f09-a173-981a9ee7cea9',
+  stateMachineArn: 'arn:aws:states:us-east-1:165940758985:stateMachine:RpgStepFunctionsStateMachine-KWBQD89RFQOY',
+  name: '7e92d52e-bfb6-4f09-a173-981a9ee7cea9',
+  status: 'FAILED',
+  startDate: 2017-07-06T19:08:50.042Z,
+  stopDate: 2017-07-06T19:08:51.127Z,
+  input: '{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}',
+  cause: 'You haven\'t killed the enemy' }
+```
 
-## Python
-
-Download and install the latest version of Python from the [official website](https://www.python.org/downloads/)
-
-## VSCode
-
-I'm going to use VSCode in this workshop (you can use whatever editor you'd like). If you don't have VSCode installed, go to the [official website](https://code.visualstudio.com/) and follow the instructions for you favourite OS.
-
-There are a couple of extensions that will make our live easier. For F# development, download the [ionide](http://ionide.io/) extension. For C# development, download the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp).
-
-## AWS
-
-You'll need an AWS account to follow the workshop. You can get one for free [here](https://aws.amazon.com/free/). Once you have the account, you'll need to setup an account so that the serverless framework can interact with AWS. Please, follow the steps explained [here](https://serverless.com/framework/docs/providers/aws/guide/credentials/). My preferred option is to set up an AWS profile. 
+Well done!
