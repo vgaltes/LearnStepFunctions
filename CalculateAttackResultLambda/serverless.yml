@@ -1,0 +1,12 @@
+service: CalculateAttackResultLambda
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  profile: serverless-admin-vgaltes
+  region: us-east-1
+  stage: dev
+
+functions:
+  calculateAttackResult:
+    handler: handler.calculateAttackResult
