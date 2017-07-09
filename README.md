@@ -9,7 +9,11 @@ module.exports.calculateAttackResult = (event, context, callback) => {
   let attackResult = event[0];
   let defenseResult = event[1];
 
-  defenseResult.Defense.Player.Live = defenseResult.Defense.Player.Live - attackResult.Attack.Strength;
+  let attack = attackResult.Attack.Strength - defenseResult.Defense.Strength;
+
+  if ( attack < 0 ) attack = 0;
+
+  defenseResult.Defense.Player.Live = defenseResult.Defense.Player.Live - attack;
 
   let result = {"Attack": attackResult.Attack, "Defense" : defenseResult.Defense};
 
@@ -41,7 +45,7 @@ Time to deploy: `sls deploy`
 
 And test:
 ```
-sls invoke -f calculateAttackResult --data '[{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}, {"Attack":{"Player":{"Level":10,"Live":50}, "Strength":10}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}]'
+sls invoke -f calculateAttackResult --data '[{"Attack":{"Player":{"Level":10, "Live":50}, "Strength":40}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}, {"Attack":{"Player":{"Level":10,"Live":50}, "Strength":20}, "Defense":{"Player":{"Level":8, "Live":20}, "Strength": 30}}]'
 ```
 
 You should see the following result:
@@ -53,7 +57,7 @@ You should see the following result:
       "Level":10,
       "Live":50
     },
-    "Strength":10
+    "Strength":20
   },
   "Defense":{
     "Player":{
