@@ -23,7 +23,7 @@ functions:
     handler: handler.performAttack
     events:
         - http:
-            path: attack
+            path: performAttack
             method: POST
     environment:
       rpg_arn: ${self:resources.Outputs.Rpg.Value}
