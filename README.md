@@ -134,3 +134,17 @@ Modify the serverles.yml file in the root folder to replace the actual states of
 Deploy the Step Function and test it.
 
 Check the [Step 7 branch](https://github.com/vgaltes/learnstepfunctions/tree/Step7) for the final solution.
+
+## Calling the Step Function.
+
+Create an HTTP endpoint in your Step Function to be able to call it (POST).
+
+Deploy the Step Function and test it via curl or postman.
+
+Install the aws-sdk package via npm or yarn. Create a Lambda that calls the Step Function. Get the arn of the step function via environment variable.
+
+Edit the serverles.yml file to export the arn of the Step Function. Pass it to the Lambda Function via environment variable. Add an HTTP handler to the Lambda.
+
+Grant permissions to the service to be able to execute a Step Function.
+
+Check the [Step 8 branch](https://github.com/vgaltes/learnstepfunctions/tree/Step8) for the final solution.
