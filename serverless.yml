@@ -8,14 +8,30 @@ custom:
 
 provider:
   name: aws
-  runtime: dotnetcore1.0
+  runtime: nodejs6.10
   profile: serverless-admin-vgaltes
   region: us-east-1
   stage: dev
+  iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+         - "states:StartExecution"
+       Resource: ${self:resources.Outputs.Rpg.Value}
+
+functions:
+  performAttack:
+    handler: handler.performAttack
+    events:
+        - http:
+            path: attack
+            method: POST
+    environment:
+      rpg_arn: ${self:resources.Outputs.Rpg.Value}
 
 stepFunctions:
   stateMachines:
     rpg:
+      name: Rpg
       definition:
         StartAt: Attack
         States:
@@ -56,6 +72,17 @@ stepFunctions:
             Cause: "You haven't killed the enemy"
           Dead:
             Type: Succeed
+      events:
+        - http:
+            path: attack
+            method: POST
+
+resources:
+  Outputs:
+    Rpg:
+      Description: The ARN of the state machine
+      Value:
+        Ref: Rpg
 
 plugins:
   - serverless-step-functions
