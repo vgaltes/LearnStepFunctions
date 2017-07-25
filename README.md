@@ -1,6 +1,6 @@
 ## Our first lambda
 
-Now that we have the skeleton of the Step Function, let's develop our first lambda. Let's start with some .Net Core and C#. In your root folder type `serverless create --template aws-chsarp --path AttackMultiplierLambda`. Open the csproj file and delete these two lines
+Now that we have the skeleton of the Step Function, let's develop our first lambda. Let's start with some .Net Core and C#. In your root folder type `serverless create --template aws-csharp --path AttackMultiplierLambda`. Open the csproj file and delete these two lines
 ```
 <AssemblyName>CsharpHandlers</AssemblyName>
 <PackageId>aws-csharp</PackageId>
