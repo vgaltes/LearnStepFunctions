@@ -5,6 +5,13 @@ Now that we have the skeleton of the Step Function, let's develop our first lamb
 <AssemblyName>CsharpHandlers</AssemblyName>
 <PackageId>aws-csharp</PackageId>
 ```
+
+Add the following nuget packages:
+```
+Amazon.Lambda.Core
+Amazon.Lambda.Serialization.Json
+```
+
 And change the name of the csproj file to `AttackMultiplierLambda.csproj`. Rename the `Handler.cs` file to `AttackMultiplierLambda.cs`.
 
 Replace the content of the file with the following code:
