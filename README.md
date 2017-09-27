@@ -57,6 +57,7 @@ resources:
       Value:
         Ref: Rpg
 (...)
+```
 
 Create a handler.js file with the following code:
 
